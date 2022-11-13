@@ -1,20 +1,30 @@
-
-import time
 import torch
 import numpy as np
 
-
 from runners.base_runner import Runner
-from algorithm.happo.happo_trainer import HAPPO
-from algorithm.happo.happo_policy import HappoPolicy
-from utils.replay_buffer import ReplayBuffer
-from configs.hyper_parameters import Model_Parameters as MP
-
 from algorithm.model.alpha.airbattle_model import AirEnocderModel
 from algorithm.happo.happo_alpha_policy import HappoAlphaPolicy
 from algorithm.happo.happo_alpha_trainer import HappoAlphaTrainer
 from utils.alpha_replay_buffer import AlphaReplayBuffer
 
+'''
+obs处理：
+1. target的mask操作，目标只有10个己方单位，我考虑把所有导弹信息都加进去，例如变成10个飞机+10个导弹
+2. ScoreCumulative
+3. baseline_state的实现
+
+功能实现：
+1. prep_rollout()的实现
+2. 初始化模型参数没有完成
+3. guide里面的动态目标还没有实现
+4. 代码存在逻辑问题，如果指定的每局步长内没有完成当前这一局，或者提前完成了，那么下一个episdoe会重新执行init_move
+
+
+每次更新跑多少个步长参数的时候需要检查
+algorithm_step
+还有buffer当中
+self.step = (self.step + 1) % (self.episode_length - 1) 确保最后一步的数据正确存入buffer当中
+'''
 
 def _t2n(x):
     return x.detach().cpu().numpy()
@@ -65,7 +75,7 @@ class BattleAlphaRunner(Runner):
             # 循环episode_length步，但引擎最多智能存episode_length % 3的数据， 所以要么把推进的步长增加，要么把寸的维度降低
             # 200 66  600  (600 -200) // 3
             # 如果算法设置的episode_length为200， 那么buffer中的step +1 = 199应该就是最后一步
-            print('开始第{}轮训练'.format(episode))
+            print('开始第{}轮训练'.format(episode + 1))
             for step in range(engine_episode_length + 1):
                 # 分为三种mode
                 # mode1：红由规则推进，蓝自由推进

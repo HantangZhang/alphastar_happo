@@ -14,30 +14,13 @@
 # for i in level_action:
 #     mask = generate_location_mask(i)
 #     print(mask)
-import torch
-import torch.nn as nn
+import random
+dic = {}
+for _ in range(1000):
+    a = random.randint(1, 28)
+    if a not in dic:
+        dic[a] = 1
+    else:
+        dic[a] += 1
 
-class model(nn.Module):
-
-    def __init__(self, device):
-        super(model, self).__init__()
-
-        self.linear = nn.Linear(10, 11)
-        self.to(device)
-
-    def forward(self, x):
-        y = self.linear(x)
-
-        return x
-
-
-x = torch.zeros((2, 10))
-print(x.device)
-device = 'cuda:0'
-mo = model(device)
-x = x.to('cuda:0')
-print(next(mo.parameters()).device, 11111)
-y = mo(x)
-print(y)
-
-
+print(dic)

@@ -69,6 +69,10 @@ class AlphaBattleEnv():
     def step(self, model_action):
         red_cmd_list = []
         mode = 0
+        if self.episode_steps == self.episode_length * 3 + 201 + 1:
+            self.episode_steps = 0
+        # 到新的一轮训练的时候，如果当前比赛还没结束，但是把episode_steps重置为0的话，飞机就又要进行initmove了，这是有问题的
+
         if self.episode_steps < self.enable_algorithm_step:
             red_cmd_list = self.maybe.init_move(self.red_obs)
         elif self.episode_steps >= self.enable_algorithm_step and self.episode_steps % 3 == 0:
@@ -130,8 +134,7 @@ class AlphaBattleEnv():
 
         # 当算法步长是self.episode_length - 1 时， 例如199， self.episode_steps应该是799， 800， 和 801
         # 然后外面step是801的时候，进入算法，里面self.episode_steps已经是0了
-        if self.episode_steps == self.episode_length * 3 + 201 + 1:
-            self.episode_steps = 0
+
 
         return [], [], [], [], dones, [], []
 
